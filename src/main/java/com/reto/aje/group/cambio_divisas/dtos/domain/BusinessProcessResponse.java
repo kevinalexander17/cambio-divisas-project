@@ -18,7 +18,9 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class BusinessProcessResponse {
+public class BusinessProcessResponse implements Serializable{
+
+    private static final long serialVersionUID = -2811833282963724825L;
 
     @JsonbProperty("code")
     @JsonProperty("code")

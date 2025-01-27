@@ -2,6 +2,7 @@ package com.reto.aje.group.cambio_divisas.repositories.implementation.database;
 
 import com.reto.aje.group.cambio_divisas.componentes.mapper.entity.ICurrencyEntityMapper;
 import com.reto.aje.group.cambio_divisas.dtos.domain.Currency;
+import com.reto.aje.group.cambio_divisas.dtos.exceptions.CurrencyException;
 import com.reto.aje.group.cambio_divisas.dtos.exceptions.NotDomainFoundException;
 import com.reto.aje.group.cambio_divisas.repositories.contracts.ICurrencyRepository;
 import com.reto.aje.group.cambio_divisas.repositories.implementation.database.r2dbc.ICurrencyEntityRepository;
@@ -35,6 +36,17 @@ public class CurrencyRepository implements ICurrencyRepository {
                     return new NotDomainFoundException(error, HttpStatus.BAD_REQUEST, errors);
                 }))
                 .map(iCurrencyEntityMapper::toDomain);
+    }
+
+    @Override
+    public Mono<Currency> doOnSaveOrUpdate(final Currency currency) {
+        return Mono.just(currency)
+                .flatMap(current -> Mono.just(iCurrencyEntityMapper.toEntity(current)))
+                .flatMap(iCurrencyEntityRepository::save)
+                .flatMap(entity -> Mono.just(iCurrencyEntityMapper.toDomain(entity)))
+                .onErrorMap(error -> new CurrencyException("Error Saving Currency",
+                        HttpStatus.BAD_REQUEST,
+                        List.of(error.getMessage())));
     }
 
 }

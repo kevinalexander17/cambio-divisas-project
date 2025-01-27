@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 
+import javax.json.bind.annotation.JsonbProperty;
 import java.io.Serializable;
 
 
@@ -14,10 +15,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CurrencyRequest implements Serializable {
+public class FindCurrencyRequest implements Serializable {
     private static final long serialVersionUID = 7203345893494382102L;
 
     @JsonProperty("currencyCode")
+    @JsonbProperty("currencyCode")
     private String currencyCode;
 
 }

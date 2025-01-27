@@ -7,6 +7,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Log4j2
 @Service
 public class CurrencyDomainService implements ICurrencyDomainService {
@@ -19,5 +21,14 @@ public class CurrencyDomainService implements ICurrencyDomainService {
     @Override
     public Mono<Currency> doOnFindByCode(final String code) {
         return iCurrencyRepository.doOnFetchCurrencyByCode(code);
+    }
+
+    @Override
+    public Mono<Currency> doOnSaveOrUpdate(final Currency currency) {
+        return Mono.just(currency)
+                .flatMap(current -> {
+                    current.setUuid(UUID.randomUUID().toString());
+                    return iCurrencyRepository.doOnSaveOrUpdate(currency);
+                });
     }
 }

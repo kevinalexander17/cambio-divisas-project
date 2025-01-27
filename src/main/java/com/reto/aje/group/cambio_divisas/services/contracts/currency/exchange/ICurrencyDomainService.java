@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface ICurrencyDomainService {
     Mono<Currency> doOnFindByCode(final String code);
+    Mono<Currency> doOnSaveOrUpdate(final Currency currency);
 }
