@@ -2,6 +2,9 @@ package com.reto.aje.group.cambio_divisas.controllers.implementations;
 
 import com.reto.aje.group.cambio_divisas.componentes.use.cases.FindCurrencyComponent;
 import com.reto.aje.group.cambio_divisas.controllers.contracts.ICurrencyController;
+import com.reto.aje.group.cambio_divisas.dtos.domain.BusinessProcessResponse;
+import com.reto.aje.group.cambio_divisas.dtos.exceptions.CurrencyExchangeException;
+import com.reto.aje.group.cambio_divisas.dtos.request.currency.CurrencyRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +30,14 @@ public class CurrencyController implements ICurrencyController {
 
     @GetMapping(path = "/find")
     @Override
-    public Mono<ResponseEntity<Object>> doOnFindCurrencyByCode(@RequestParam(name="currencyCode") String currencyCode) {
-        return null;
+    public Mono<ResponseEntity<BusinessProcessResponse>> doOnFindCurrencyByCode(@RequestParam(name="currencyCode") String currencyCode) {
+        CurrencyRequest currencyRequest = CurrencyRequest.builder().currencyCode(currencyCode).build();
+        return findCurrencyComponent.doOnFindCurrencyByCode(currencyRequest)
+                .map(ResponseEntity::ok)
+                .onErrorResume(CurrencyExchangeException.class, exception -> {
+                    BusinessProcessResponse erroBusinessProcessResponse = BusinessProcessResponse.doOnBuildErrorResponse(exception);
+                    return Mono.just(ResponseEntity.status(Integer.parseInt(erroBusinessProcessResponse.getCode()))
+                            .body(erroBusinessProcessResponse));
+                });
     }
 }

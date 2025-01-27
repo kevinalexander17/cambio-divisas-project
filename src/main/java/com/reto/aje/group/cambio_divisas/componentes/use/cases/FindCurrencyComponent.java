@@ -6,9 +6,7 @@ import com.reto.aje.group.cambio_divisas.componentes.mapper.dto.IFindCurrencyMap
 import com.reto.aje.group.cambio_divisas.componentes.validations.IFindCurrencyRequestValidation;
 import com.reto.aje.group.cambio_divisas.constants.LogConstants;
 import com.reto.aje.group.cambio_divisas.dtos.composition.currency.CurrencyComposition;
-import com.reto.aje.group.cambio_divisas.dtos.domain.BaseBusinessResponse;
 import com.reto.aje.group.cambio_divisas.dtos.domain.BusinessProcessResponse;
-import com.reto.aje.group.cambio_divisas.dtos.domain.GenericBusinessResponse;
 import com.reto.aje.group.cambio_divisas.dtos.exceptions.CurrencyException;
 import com.reto.aje.group.cambio_divisas.dtos.request.currency.CurrencyRequest;
 import com.reto.aje.group.cambio_divisas.services.contracts.currency.exchange.ICurrencyDomainService;
@@ -16,8 +14,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.io.Serializable;
 
 @Log4j2
 @Component
@@ -76,10 +72,7 @@ public class FindCurrencyComponent {
 
     private Mono<BusinessProcessResponse> doOnProcessResponse(final CurrencyComposition currencyComposition) {
         return Mono.just(currencyComposition)
-                .flatMap(current -> {
-                    final GenericBusinessResponse<Serializable> genericBusinessResponse = new GenericBusinessResponse<>(current.getResponse());
-                    return Mono.just(BusinessProcessResponse.setEntitySuccessfullyResponse(genericBusinessResponse));
-                })
+                .flatMap(current -> Mono.just(BusinessProcessResponse.doOnBuildEntitySuccessfullyResponse(current.getResponse())))
                 .doOnSuccess(success -> log.debug(LogConstants.SUCCESS_TRACE_LOG_FORMAT, DO_ON_PROCESS_RESPONSE, success.toString()))
                 .doOnError(throwable -> log.debug(LogConstants.ERROR_TRACE_LOG_FORMAT, DO_ON_PROCESS_RESPONSE, throwable.getMessage()))
                 .log();
